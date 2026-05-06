@@ -1,0 +1,30 @@
+name: Auto Update Abema Playlist
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Berjalan otomatis setiap jam 00:00 UTC
+  workflow_dispatch:     # Tombol manual untuk menjalankan workflow kapan saja
+
+jobs:
+  update-file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download and Edit File
+        run: |
+          # Mengambil file raw dari GitHub
+          # Perintah sed 's/==" /" /g' akan mencari ==" dan menggantinya dengan "
+          # Karakter \ digunakan untuk 'escape' jika ada karakter khusus, 
+          # namun untuk kasus ini cukup gunakan pola di bawah:
+          curl -s "https://raw.githubusercontent.com/dbghelp/Abema-TV/refs/heads/main/abema.m3u8" | sed 's/==" /"/g' > abema_fixed.m3u8
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add abema_fixed.m3u8
+          git commit -m "Update playlist: Replaced ==\" with \"" || exit 0
+          git push
+          
