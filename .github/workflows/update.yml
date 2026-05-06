@@ -1,22 +1,23 @@
 name: Auto Update Abema Playlist
 
 on:
+  push:
+    branches:
+      - main
   schedule:
-    - cron: '0 0 * * *' # Berjalan otomatis setiap hari jam 00:00 UTC
-  workflow_dispatch:     # Tombol manual di tab Actions
+    - cron: '0 * * * *'  # BERJALAN SETIAP JAM (pada menit ke-0)
+  workflow_dispatch:     # Tetap bisa dijalankan manual
 
 jobs:
   update-file:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        # Menggunakan v4 yang sudah mendukung Node terbaru
         uses: actions/checkout@v4
 
       - name: Download and Edit File
         run: |
-          # \x3d adalah '=' dan \x22 adalah '"'
-          # Perintah ini akan menghapus '==' yang berada tepat sebelum '"'
+          # Mengambil file dan mengganti ==" menjadi "
           curl -L -s "https://raw.githubusercontent.com/dbghelp/Abema-TV/refs/heads/main/abema.m3u8" | sed 's/\x3d\x3d\x22/\x22/g' > abema_fixed.m3u8
 
       - name: Commit and Push
@@ -24,6 +25,5 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add abema_fixed.m3u8
-          # Commit hanya jika ada perubahan untuk menghindari error
-          git commit -m "Update playlist: Fixed quotes and equals signs" || exit 0
-          git push
+          # Hanya commit jika ada perubahan konten untuk menghindari spam commit kosong
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update playlist jam: $(date +'%H:%M')" && git push)
