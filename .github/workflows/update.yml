@@ -6,7 +6,13 @@ on:
       - main
   schedule:
     - cron: '*/15 * * * *'  # BERJALAN SETIAP 15 menit
-  workflow_dispatch:     # Tetap bisa dijalankan manual
+  workflow_dispatch: 
+    inputs:
+      reason:
+        description: 'Alasan trigger'
+        required: false
+        default: 'Update dari Pipedream'
+        # Tetap bisa dijalankan manual
 
 jobs:
   update-file:
