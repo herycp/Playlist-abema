@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '*/15 * * * *'  # BERJALAN SETIAP 15 menit
+    - cron: '*/3 * * * *'  # BERJALAN SETIAP 3 menit
   workflow_dispatch: 
     inputs:
       reason:
